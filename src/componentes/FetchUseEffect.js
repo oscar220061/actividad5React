@@ -1,54 +1,80 @@
 
 import React, { useState, useEffect } from 'react';
 
-const DEFAULT_URL = "http://localhost:5000/users";
+const FetchUseEffect = () => {
+  const [listaUsuarios, setListaUsuarios] = useState([]);
+  const [usuarioSelect, setUsuarioSelect] = useState("");
+  const [idUsuario, setIdUsuario] = useState("");
+  const DEFAULT_URL = " http://localhost:5000/users";
+ 
+  
 
-async function fetchPosts() {
-  const response = await fetch(DEFAULT_URL);
-  const users = await response.json();
-  return users;
-}
+  async function fetchPosts() {
+    const response = await fetch(DEFAULT_URL);
+    const usuarios = await response.json();
+    return usuarios;
+  }
+  async function fetchPostsUsuario(usuarioId) {
+    const url = "http://localhost:5000/users?id=" + usuarioId;
+    const response = await fetch(url);
+    const usuario = await response.json();
+    console.log(usuario)
+    return usuario;
+    
+  }
 
-function FetchUseEffect() {
-  const [loadedUsers, setLoadedUsers] = useState([]);
-  const [cargarUsuario, setCargarUsuario] = useState(null);
-
-  useEffect(() => {
-    fetchPosts().then((fetchedUsers) => setLoadedUsers(fetchedUsers));
+  useEffect(function () {
+    fetchPosts().then((usuarios) => setListaUsuarios(usuarios)
+    );
   }, []);
-  useEffect(() => {
-    fetchPosts().then((fetchedUsers) => setCargarUsuario(fetchedUsers));
-  }, []);
 
-  const mostarUsuario = (idUsuario) => {
-    let usuario = null;
-    loadedUsers.map((post) => {
-      if (post.id === idUsuario) {
-        usuario = post;
-      }
-      return null;
-    });
-    setCargarUsuario(usuario);
-  };
-
+  useEffect(function () {
+    if (idUsuario !== "") {
+      
+    fetchPostsUsuario(idUsuario).then((usuario) =>{ console.log(usuario);setUsuarioSelect(usuario)}
+    
+    );
+    }
+  }, [idUsuario]);
+ 
+  
   return (
-    <>
+    <div>
+      <>
       <ul>
-        {loadedUsers.map((post) => (
-          <li key={post.id}>{post.name} <button onClick={() => mostarUsuario(post.id)}>Mostrar datos</button>
+        {listaUsuarios.map((user) => (
+          <li key={user.id} >
+            {user.name}
+            <button onClick={() => setIdUsuario(user.id)}>Mostrar Detalles</button>
           </li>
         ))}
       </ul>
 
-      {cargarUsuario && (
-        <div>
-          <p>{cargarUsuario.name}</p>
-          <p>{cargarUsuario.phone}</p>
-          <p>{cargarUsuario.email}</p>
-        </div>
-      )}
-    </>
-  );
-}
+      {usuarioSelect && (
+      <div>
+       <ul>
+        {usuarioSelect.map((user) => (
+          <><li>
+            {user.name}
 
+          </li><li>
+              {user.phone}
+
+            </li>
+            <li >
+            {user.email}
+            
+          </li></>
+        ))}
+      </ul>
+
+      </div>
+       
+     
+
+      )}
+      </>
+    </div>
+  );
+};
 export default FetchUseEffect;
